@@ -1,0 +1,72 @@
+#include <ThingSpeak.h>
+#include <ESP8266WiFi.h>
+const char* ssid = "SajiSindhu";
+const char* password = "mami1234";
+char* server = "api.thingspeak.com";
+unsigned long channelID = 1378392;
+char* readAPIKey = "Y8UEFHU2J7LKVQ31";
+unsigned int dataFieldOne = 1;
+int aConst = 2.25E-02;
+
+int ledpin=D7;
+WiFiClient client;
+void setup() {
+  pinMode(ledpin,OUTPUT);
+  Serial.begin(115200);
+  Serial.println("Start");
+  connectWiFi();
+  aConst = readTSData( channelID, dataFieldOne );
+  Serial.print("The number of people is");
+  Serial.println(aConst);
+  delay(1000);
+}
+void loop() {
+  
+  //reading data from thing speak
+  aConst = readTSData( channelID, dataFieldOne );
+  Serial.print("The number of people is");
+  Serial.println(aConst);
+  if (aConst==1){
+    Serial.println("The delay is 5 seconds");
+    digitalWrite(ledpin,1);
+    delay(2000);
+    digitalWrite(ledpin,0);
+    delay(2000);
+  }
+  else if(aConst==2){
+    Serial.println("The delay is 4 seconds");
+    digitalWrite(ledpin,1);
+    delay(2000);
+    digitalWrite(ledpin,0);
+    delay(1000);
+  }
+  else{
+    Serial.println("The delay is 3 seconds");
+    digitalWrite(ledpin,1);
+    delay(2000);
+    digitalWrite(ledpin,0);
+  }
+delay(3000);
+}
+
+
+
+
+//
+int connectWiFi() {
+  WiFi.begin( ssid, password );
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println( "Connected" );
+  ThingSpeak.begin( client );
+}
+float readTSData( long TSChannel, unsigned int TSField ) {
+
+  float data =  ThingSpeak.readFloatField( TSChannel, TSField, readAPIKey );
+  Serial.println( " Data read from ThingSpeak: " + String( data, 9 ) );
+  return data;
+
+}
